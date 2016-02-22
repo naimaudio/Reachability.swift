@@ -38,6 +38,9 @@ Just drop the **Reachability.swift** file into your project. That's it!
  4. In your code import Reachability like so:
    `import ReachabilitySwift`
 
+ 4. In your code import Reachability like so:
+   `import ReachabilitySwift`
+
 ### Carthage
 [Carthage][] is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks.
 To install Reachability.swift with Carthage:
@@ -109,21 +112,20 @@ reachability.stopNotifier()
 This sample will use `NSNotification`s to notify when the interface has changed. They will be delivered on the **MAIN THREAD**, so you *can* do UI updates from within the function.
 
 ```swift
-let reachability: Reachability
+//declare this property where it won't go out of scope relative to your listener
+var reachability: Reachability?
+
+//declare this inside of viewWillAppear
 do {
-    reachability = try Reachability.reachabilityForInternetConnection()
-} catch {
-    print("Unable to create Reachability")
-    return
-}
+      reachability = try Reachability.reachabilityForInternetConnection()
+    } catch {
+      print("Unable to create Reachability")
+      return
+    }
 
-NSNotificationCenter.defaultCenter().addObserver(self,
-                                                 selector: "reachabilityChanged:",
-                                                 name: ReachabilityChangedNotification,
-                                                 object: reachability)
-
-do{
-      try reachability.startNotifier()
+    NSNotificationCenter.defaultCenter().addObserver(self, selector: "reachabilityChanged:",name: ReachabilityChangedNotification,object: reachability)
+    do{
+      try reachability?.startNotifier()
     }catch{
       print("could not start reachability notifier")
     }
@@ -134,17 +136,17 @@ and
 ```swift
 func reachabilityChanged(note: NSNotification) {
 
-    let reachability = note.object as! Reachability
+  let reachability = note.object as! Reachability
 
-    if reachability.isReachable() {
-        if reachability.isReachableViaWiFi() {
-            print("Reachable via WiFi")
-        } else {
-            print("Reachable via Cellular")
-        }
+  if reachability.isReachable() {
+    if reachability.isReachableViaWiFi() {
+      print("Reachable via WiFi")
     } else {
-        print("Not reachable")
+      print("Reachable via Cellular")
     }
+  } else {
+    print("Network not reachable")
+  }
 }
 ```
 
